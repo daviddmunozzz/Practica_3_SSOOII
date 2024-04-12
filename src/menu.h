@@ -5,8 +5,8 @@
 * Class version: 1.0
 * Class description: 
 *
-**********************************************************************
-*/
+*
+**********************************************************************/
 
 #ifndef MENU_H
 #define MENU_H
@@ -17,15 +17,17 @@
 class Menu
 {
     private:
-        int numero_clientes;     //Numeros de clientes que realizan busqueadas
-        int busquedas_paralelas; //Maximo numero de busquedas a la vez.
+        int numero_clientes;                        //Numeros de clientes que realizan busqueadas
+        int busquedas_paralelas;                    //Maximo numero de busquedas a la vez.
         std::vector<std::string> conjunto_palabras; //Conjunto de palabras aleatorias
 
     public:
-        Menu();
         void lanzarMenu() const;    //Logica del menu
         void PalabraAzar() const;   //Asignamos palabra al azar
 
 };
 
 #endif
+
+//Incluir aquí el diccionario de palabras para añadir al azar al crear los usuarios
+//Al crear los clientes, esperar 2 segundos para crear el otro
