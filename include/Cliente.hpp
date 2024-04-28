@@ -1,6 +1,6 @@
 /*********************************************************************
 * Class Name: cliente.h
-* Author/s name: Daviz Muñoz y Daniel Aguado.
+* Author/s name: David Muñoz y Daniel Aguado.
 * Release/Creation date: 17/4/2024
 * Class version: 1.0
 * Class description: Clase abstracta cliente de la que derivan gratuida,
@@ -15,11 +15,14 @@
 #include <string>
 #include <atomic>
 #include <queue>
+#include <iostream>
+#include <condition_variable>
 #include "PeticionPago.hpp"
 #include "PeticionBusqueda.hpp"
-#include <iostream>
 
-void crearPeticion();
+void crearPeticion(int id_cliente, std::string palabra, int creditos, std::condition_variable* cv, std::queue<PeticionBusqueda>* q, std::string tipo);
+void recargarCreditos(int* creditos);
+void mostrarMensaje(int id_cliente, std::string palabra, int creditos, std::string tipo);
 
 class Cliente
 {
@@ -57,7 +60,7 @@ class Gratuita: public Cliente
 class Saldo: public Cliente
 {
     private:
-       int creditos = 10;                                       
+        int creditos = 10;                                       
     public: 
         using Cliente::Cliente;
         void operator ()() override; 
@@ -75,6 +78,3 @@ class Ilimitada: public Cliente
 
 
 #endif
-
-        /*Gratuita(int _id_cliente, std::string& _palabra_busqueda, std::queue<PeticionBusqueda>* _colaPetBusqueda)
-        : Cliente(_id_cliente, _palabra_busqueda, _colaPetBusqueda) {}*/

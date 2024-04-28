@@ -29,14 +29,20 @@
 
 /* COLAS GLOBALES */
 std::queue<PeticionBusqueda> colaPetBusqueda;
-std::condition_variable cv_Busqueda;
 std::queue<PeticionPago> colaPetPago;
+
+/* VARIABLES DE CONDICIÓN */
+std::condition_variable cv_Busqueda;
 std::condition_variable cv_Pago;
 
 std::string diccionario[] = {
-    "hola",
-    "adios",
-    "casa"
+    "hola","adios", "gato",
+    "casa", "coche", "perro",    
+    "mesa", "silla", "libro",
+    "telefono", "ordenador", "pelicula",
+    "juego", "musica", "playa",
+    "montaña", "ciudad", "parque",
+    "comida", "bebida"
 };
 
 void crearClientes()
@@ -49,17 +55,17 @@ void crearClientes()
         int valor = std::rand() % 3;
         if (valor == 0)
         {
-            vClientes.emplace_back(Gratuita(i, diccionario[rand() % 3], &cv_Busqueda, &colaPetBusqueda));
+            vClientes.emplace_back(Gratuita(i, diccionario[rand() % 20], &cv_Busqueda, &colaPetBusqueda));
             std::this_thread::sleep_for(std::chrono::seconds(3));
         }
         else if (valor == 1)
         {
-            vClientes.emplace_back(Saldo(i, diccionario[rand() % 3], &cv_Busqueda, &colaPetBusqueda));
+            vClientes.emplace_back(Saldo(i, diccionario[rand() % 20], &cv_Busqueda, &colaPetBusqueda));
             std::this_thread::sleep_for(std::chrono::seconds(3));
         }
         else
         {
-            vClientes.emplace_back(Ilimitada(i, diccionario[rand() % 3], &cv_Busqueda, &colaPetBusqueda));
+            vClientes.emplace_back(Ilimitada(i, diccionario[rand() % 20], &cv_Busqueda, &colaPetBusqueda));
             std::this_thread::sleep_for(std::chrono::seconds(3));
         }
     }
@@ -79,7 +85,7 @@ int main()
     hiloPago.detach();
 };*/
 
-void crearBuscadores()
+/*void crearBuscadores()
 {
     std::vector<std::thread> vBuscadores;
 
@@ -89,4 +95,4 @@ void crearBuscadores()
     }
 
     std::for_each(vBuscadores.begin(), vBuscadores.end(), std::mem_fn(&std::thread::join));
-}; 
+}; */

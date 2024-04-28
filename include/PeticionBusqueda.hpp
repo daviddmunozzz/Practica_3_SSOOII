@@ -15,6 +15,7 @@
 #include <atomic>
 #include <queue>
 #include <string>
+#include <mutex>
 
 class PeticionBusqueda
 {
@@ -27,6 +28,10 @@ class PeticionBusqueda
     public:
         PeticionBusqueda(int _id_cliente, const std::string& palabra_busqueda, int _creditos, std::mutex* _mtx) 
         : id_cliente(_id_cliente), palabra_busqueda(palabra_busqueda), creditos(_creditos), mtx(_mtx) {}
+        int getIdCliente() const { return id_cliente; }
+        std::string getPalabraBusqueda() const { return palabra_busqueda; }
+        int getCreditos() const { return creditos; }
+        std::mutex* getMtx() const { return mtx; }
 };
 
 #endif 

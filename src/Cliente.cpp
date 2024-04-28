@@ -10,37 +10,50 @@
 
 void Gratuita::operator()()
 {
-   crearPeticion(getIdCliente(), getPalabraBusqueda(), getCreditos(), getCvBusqueda(), getColaPetBusqueda());
+    crearPeticion(getIdCliente(), getPalabraBusqueda(), creditos, getCvBusqueda(), getColaPetBusqueda(), "[GRATUITA]");
 };
 
 
 void Saldo::operator()()    
 {
-   crearPeticion(getIdCliente(), getPalabraBusqueda(), getCreditos(), getCvBusqueda(), getColaPetBusqueda());
+    crearPeticion(getIdCliente(), getPalabraBusqueda(), creditos, getCvBusqueda(), getColaPetBusqueda(), "[PREMIUM]");    
 };
 
 
 void Ilimitada::operator()()
-{
-   crearPeticion(getIdCliente(), getPalabraBusqueda(), getCreditos(), getCvBusqueda(), getColaPetBusqueda());
+{  
+
+    crearPeticion(getIdCliente(), getPalabraBusqueda(), creditos, getCvBusqueda(), getColaPetBusqueda(), "[PREMIUM +]");
 };
 
 
-std::condition_variable cv;
 std::mutex lock;
 
-void crearPeticion(int id_cliente, std::string palabra, int creditos, std::condition_variable* cv, std::queue<PeticionBusqueda>* q)
+void crearPeticion(int id_cliente, std::string palabra, int creditos, std::condition_variable* cv, std::queue<PeticionBusqueda>* q, std::string tipo)
 {   
-    std::unique_lock ulock(lock);
+    std::unique_lock<std::mutex> ulock(lock);
     std::mutex mtx;
     PeticionBusqueda p (id_cliente, palabra, creditos, &mtx);
-    //Frase
+    mostrarMensaje(id_cliente, palabra, creditos, tipo);
+    std::this_thread::sleep_for(std::chrono::seconds(3));
     q->push(p);
 
     cv->notify_one();
-    mtx.lock();
+    mtx.lock();   
 }
 
+
+void mostrarMensaje(int id_cliente, std::string palabra, int creditos, std::string tipo)
+{   
+    if(creditos != -1)
+    {
+        creditos--;
+        std::cout << tipo << " El cliente " << id_cliente << " procede a buscar la palabra " << palabra << ", le quedan " << creditos << " creditos." << std::endl;
+    }else
+    {
+        std::cout << tipo << " El cliente " << id_cliente << " procede a buscar la palabra " << palabra << std::endl;
+    }
+}
 
 /*int main()
 {
