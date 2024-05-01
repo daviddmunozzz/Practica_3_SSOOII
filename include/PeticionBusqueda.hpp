@@ -20,9 +20,9 @@
 class PeticionBusqueda
 {
     private:
-        int id_cliente;                //Cliente que realiza la peticion
+        int id_cliente;                 //Cliente que realiza la peticion
         std::string palabra_busqueda;   //Palabra a buscar en la peticion
-        int creditos;
+        int creditos;                   //Creditos restantes del cliente
         std::mutex *mtx;
 
     public:

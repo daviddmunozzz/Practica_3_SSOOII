@@ -35,6 +35,10 @@ std::queue<PeticionPago> colaPetPago;
 std::condition_variable cv_Busqueda;
 std::condition_variable cv_Pago;
 
+/* LIBRERIA */
+std::vector<std::string> libreria;
+
+/* DICCIONARIO DE PALABRAS */
 std::string diccionario[] = {
     "hola","adios", "gato",
     "casa", "coche", "perro",    
@@ -71,13 +75,9 @@ void crearClientes()
     }
 
     std::for_each(vClientes.begin(), vClientes.end(), std::mem_fn(&std::thread::join));
-};
+}
 
-int main()
-{
-    crearClientes();
-    return 0;
-};
+
 
 /* void crearSistemaPago()
 {
@@ -85,14 +85,26 @@ int main()
     hiloPago.detach();
 };*/
 
-/*void crearBuscadores()
+void crearBuscadores()
 {
     std::vector<std::thread> vBuscadores;
 
     for (int i = 0; i < NUM_BUSCADORES; i++)
     {
-        vBuscadores.emplace_back(Buscador(i, &colaPetBusqueda, &cv_Busqueda));
+        vBuscadores.emplace_back(Buscador(i, &colaPetBusqueda, &cv_Busqueda, libreria));
     }
 
     std::for_each(vBuscadores.begin(), vBuscadores.end(), std::mem_fn(&std::thread::join));
-}; */
+}
+
+int main()
+{
+    cargarNombreLibros(&libreria);
+    std::thread hiloClientes(crearClientes);
+    std::thread hiloBuscadores(crearBuscadores);
+
+    hiloClientes.join();
+    hiloBuscadores.join();
+    
+    return 0;
+}

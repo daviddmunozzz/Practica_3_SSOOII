@@ -22,7 +22,6 @@ void Saldo::operator()()
 
 void Ilimitada::operator()()
 {  
-
     crearPeticion(getIdCliente(), getPalabraBusqueda(), creditos, getCvBusqueda(), getColaPetBusqueda(), "[PREMIUM +]");
 };
 
@@ -31,12 +30,11 @@ std::mutex lock;
 
 void crearPeticion(int id_cliente, std::string palabra, int creditos, std::condition_variable* cv, std::queue<PeticionBusqueda>* q, std::string tipo)
 {   
-    std::unique_lock<std::mutex> ulock(lock);
+    //std::unique_lock<std::mutex> ulock(lock);
     std::mutex mtx;
     PeticionBusqueda p (id_cliente, palabra, creditos, &mtx);
     mostrarMensaje(id_cliente, palabra, creditos, tipo);
-    std::this_thread::sleep_for(std::chrono::seconds(3));
-    q->push(p);
+    q->push(p);    
 
     cv->notify_one();
     mtx.lock();   
@@ -47,8 +45,7 @@ void mostrarMensaje(int id_cliente, std::string palabra, int creditos, std::stri
 {   
     if(creditos != -1)
     {
-        creditos--;
-        std::cout << tipo << " El cliente " << id_cliente << " procede a buscar la palabra " << palabra << ", le quedan " << creditos << " creditos." << std::endl;
+        std::cout << tipo << " El cliente " << id_cliente << " procede a buscar la palabra " << palabra << std::endl;
     }else
     {
         std::cout << tipo << " El cliente " << id_cliente << " procede a buscar la palabra " << palabra << std::endl;
