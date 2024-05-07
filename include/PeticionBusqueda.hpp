@@ -31,6 +31,7 @@ class PeticionBusqueda
         int getIdCliente() const { return id_cliente; }
         std::string getPalabraBusqueda() const { return palabra_busqueda; }
         int getCreditos() const { return creditos; }
+        void restarCreditos() { creditos--; }
         std::mutex* getMtx() const { return mtx; }
 };
 

@@ -24,11 +24,11 @@
 #include "../include/Buscador.hpp"
 
 
-#define NUM_CLIENTES 5  // Numero de clientes a crear.
+#define NUM_CLIENTES 10  // Numero de clientes a crear.
 #define NUM_BUSCADORES 5 // Numero de buscadores simultaneos.
 
 /* COLAS GLOBALES */
-std::queue<PeticionBusqueda> colaPetBusqueda;
+std::queue<Cliente*> colaPeticionesBusqueda;
 std::queue<PeticionPago> colaPetPago;
 
 /* VARIABLES DE CONDICIÓN */
@@ -51,31 +51,41 @@ std::string diccionario[] = {
 
 void crearClientes()
 {
-    std::vector<std::thread> vClientes;
     std::srand(std::time(nullptr)); // Semilla para seleccionar la palabra aleatoria
 
     for (int i = 1; i <= NUM_CLIENTES; i++)
     {
         int valor = std::rand() % 3;
+        std::mutex mtx;
         if (valor == 0)
         {
-            vClientes.emplace_back(Gratuita(i, diccionario[rand() % 20], &cv_Busqueda, &colaPetBusqueda));
-            std::this_thread::sleep_for(std::chrono::seconds(3));
+            colaPeticionesBusqueda.push(new Gratuita(i, diccionario[rand() % 20], &mtx));
+            std::cout << "Cliente con opcion gratuita, procede a buscar una palabra..." << std::endl;   
+            cv_Busqueda.notify_one();
+            mtx.lock();
+            std::this_thread::sleep_for(std::chrono::seconds(1));
+
         }
         else if (valor == 1)
         {
-            vClientes.emplace_back(Saldo(i, diccionario[rand() % 20], &cv_Busqueda, &colaPetBusqueda));
-            std::this_thread::sleep_for(std::chrono::seconds(3));
+            colaPeticionesBusqueda.push(new Saldo(i, diccionario[rand() % 20], &mtx));
+            std::cout << "Cliente con opcion de saldo, procede a buscar una palabra..." << std::endl;   
+            cv_Busqueda.notify_one();
+            mtx.lock();
+            std::this_thread::sleep_for(std::chrono::seconds(1));
+
         }
         else
         {
-            vClientes.emplace_back(Ilimitada(i, diccionario[rand() % 20], &cv_Busqueda, &colaPetBusqueda));
-            std::this_thread::sleep_for(std::chrono::seconds(3));
+            colaPeticionesBusqueda.push(new Ilimitada(i, diccionario[rand() % 20], &mtx));
+            std::cout << "Cliente con opcion ilimitada, procede a buscar una palabra..." << std::endl;   
+            cv_Busqueda.notify_one();
+            mtx.lock();
+            std::this_thread::sleep_for(std::chrono::seconds(1));
         }
     }
-
-    std::for_each(vClientes.begin(), vClientes.end(), std::mem_fn(&std::thread::join));
 }
+
 
 
 
@@ -91,11 +101,11 @@ void crearBuscadores()
 
     for (int i = 0; i < NUM_BUSCADORES; i++)
     {
-        vBuscadores.emplace_back(Buscador(i, &colaPetBusqueda, &cv_Busqueda, libreria));
+        vBuscadores.emplace_back(Buscador(i, &colaPeticionesBusqueda, &cv_Busqueda, libreria));
     }
 
     std::for_each(vBuscadores.begin(), vBuscadores.end(), std::mem_fn(&std::thread::join));
-}
+} 
 
 int main()
 {
