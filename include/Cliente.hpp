@@ -21,67 +21,34 @@
 #include "PeticionBusqueda.hpp"
 #include "ResultadoBusqueda.hpp"
 
-void crearPeticion(int id_cliente, std::string palabra, int creditos, std::string tipo);
-void recargarCreditos(int* creditos);
-void mostrarMensaje(int id_cliente, std::string palabra, int creditos, std::string tipo);
+void realizarPeticion(PeticionBusqueda p);
 
 class Cliente
 {
     private:
-        int id_cliente;                 
-        std::string palabra_busqueda;   
+        int id_cliente;                                                   
+        std::string palabra_busqueda;                     
         int creditos;
-        std::mutex *mtx;
-        std::queue<ResultadoBusqueda> q_resultadoBusqueda;
-        //std::condition_variable* cv_busqueda;
-        //std::queue<PeticionBusqueda>* g_colaPetBusqueda; 
-        //cola resultadoBusqueda
-        //bool premium;
+        int tipo_cliente;                                   // 0 == Gratuito, 1 == Saldo, 2 == Ilimitado.
+        std::mutex *mtx;                                    //Semaforo para bloquearse tras depositar la peticion
+        std::queue<PeticionBusqueda>* q_peticiones;         //Cola de peticiones donde se dejan las peticiones de busqueda
+        std::condition_variable* cv_busqueda;               //Variable de condicion para avisar al cliente de los resultados
+        std::queue<ResultadoBusqueda> q_resultadoBusqueda;  //Cola de soluciones. Se le proporciona al buscador.
     public:
-        Cliente(int _id_cliente, std::string _palabra_busqueda, std::mutex* _mtx)
-        : id_cliente(_id_cliente), palabra_busqueda(_palabra_busqueda), mtx(_mtx) {}
-        //virtual void operator ()() = 0;     
+        Cliente(int _id_cliente, std::string _palabra_busqueda, int _creditos, int _tipo_cliente, std::queue<PeticionBusqueda>* _q_peticiones, std::condition_variable* _cv_busqueda)
+        : id_cliente(_id_cliente), palabra_busqueda(_palabra_busqueda), creditos(_creditos), tipo_cliente(_tipo_cliente), q_peticiones(_q_peticiones), cv_busqueda(_cv_busqueda) {}
+        
+        void operator ()();     
         int getIdCliente() const { return id_cliente; }
         std::string getPalabraBusqueda() const { return palabra_busqueda; }
-        int getCreditos() const { return creditos; }
+        virtual int getCreditos() const { return creditos; }
         void setCreditos(int _creditos) { creditos = _creditos; }
         std::mutex* getMtx() const { return mtx; }
+        int getTipoCliente() const { return tipo_cliente; }
+        std::queue<PeticionBusqueda>* getQPeticiones() const { return q_peticiones; }
+        std::condition_variable* getCvBusqueda() const { return cv_busqueda; }
         std::queue<ResultadoBusqueda> getQResultadoBusqueda() const { return q_resultadoBusqueda; }
-        //std::condition_variable* getCvBusqueda() const { return cv_busqueda; }
-        //std::queue<PeticionBusqueda>* getColaPetBusqueda() const { return g_colaPetBusqueda; }
-        //bool esPremium() const { return premium; }
-
+        void toString();
 };
-
-class Gratuita: public Cliente
-{
-    private:
-        int creditos = 5;       
-        //bool premium = false;          
-    public:
-        using Cliente::Cliente;
-        //void operator ()() override; 
-};
-
-
-class Saldo: public Cliente
-{
-    private:
-        int creditos = 10;                                       
-    public: 
-        using Cliente::Cliente;
-       // void operator ()() override; 
-};
-
-
-class Ilimitada: public Cliente
-{
-    private:
-        int creditos = -1;
-    public:  
-        using Cliente::Cliente;
-        //void operator ()() override; 
-};
-
 
 #endif

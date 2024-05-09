@@ -5,7 +5,7 @@ CXX = g++
 CXXFLAGS = -std=c++17 -Wall -pthread
 
 # Archivos fuente
-SRCS = Buscador.cpp Cliente.cpp Manager.cpp SistemaPago.cpp Utilidades.cpp
+SRCS = Buscador.cpp Cliente.cpp manager.cpp sistemaPago.cpp Utilidades.cpp
 
 # Archivos objeto
 OBJS = $(SRCS:.cpp=.o)

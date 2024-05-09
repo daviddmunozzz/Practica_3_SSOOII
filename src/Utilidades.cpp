@@ -142,7 +142,7 @@ void cargarNombreLibros(std::vector<std::string>* libreria)
     {
         for (const auto& fichero : std::filesystem::directory_iterator(directorio_busqueda))                  //Iteramos los ficheros de la carpeta
         {
-            libreria->push_back(fichero.path().filename().string());
+            libreria->push_back(LIBRERIA + fichero.path().filename().string());
         }
     } else{
         std::cerr << "El directorio no existe o no es un directorio válido." << std::endl;
