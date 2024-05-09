@@ -7,7 +7,7 @@
 #include <vector>
 #include <algorithm>
 
-std::queue<PeticionBusqueda> *g_colaPeticiones;
+std::queue<PeticionBusqueda*> *g_colaPeticiones;
 std::condition_variable *g_cvBusqueda;
 std::vector<std::string> g_vLibros;
 
@@ -28,13 +28,13 @@ void recibirPeticion()
         std::unique_lock<std::mutex> ulck(lck);
         std::cout << "Buscador esperando peticion..." << std::endl;
         g_cvBusqueda->wait(ulck, [] { return !g_colaPeticiones->empty(); });
-        PeticionBusqueda p = g_colaPeticiones->front();
+        PeticionBusqueda* p = g_colaPeticiones->front();
         g_colaPeticiones->pop();
         std::this_thread::sleep_for(std::chrono::seconds(2));
         // Mensaje
-        std::cout << "Buscador de cliente: " << p.getIdCliente() << " ha solicitado buscar la palabra " << p.getPalabraBusqueda() << std::endl;
+        std::cout << "Buscador de cliente: " << p->getIdCliente() << " ha solicitado buscar la palabra " << p->getPalabraBusqueda() << std::endl;
 
-        iniciarBusqueda(p);
+        iniciarBusqueda(*p);  // Dereferenciamos el puntero para pasarle el objeto a iniciarBusqueda()
     }
 }
 

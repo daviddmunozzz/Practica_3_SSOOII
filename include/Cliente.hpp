@@ -31,11 +31,11 @@ class Cliente
         int creditos;
         int tipo_cliente;                                   // 0 == Gratuito, 1 == Saldo, 2 == Ilimitado.
         std::mutex *mtx;                                    //Semaforo para bloquearse tras depositar la peticion
-        std::queue<PeticionBusqueda>* q_peticiones;         //Cola de peticiones donde se dejan las peticiones de busqueda
+        std::queue<PeticionBusqueda*>* q_peticiones;         //Cola de peticiones donde se dejan las peticiones de busqueda
         std::condition_variable* cv_busqueda;               //Variable de condicion para avisar al cliente de los resultados
         std::queue<ResultadoBusqueda> q_resultadoBusqueda;  //Cola de soluciones. Se le proporciona al buscador.
     public:
-        Cliente(int _id_cliente, std::string _palabra_busqueda, int _creditos, int _tipo_cliente, std::queue<PeticionBusqueda>* _q_peticiones, std::condition_variable* _cv_busqueda)
+        Cliente(int _id_cliente, std::string _palabra_busqueda, int _creditos, int _tipo_cliente, std::queue<PeticionBusqueda*>* _q_peticiones, std::condition_variable* _cv_busqueda)
         : id_cliente(_id_cliente), palabra_busqueda(_palabra_busqueda), creditos(_creditos), tipo_cliente(_tipo_cliente), q_peticiones(_q_peticiones), cv_busqueda(_cv_busqueda) {}
         
         void operator ()();     
@@ -45,7 +45,7 @@ class Cliente
         void setCreditos(int _creditos) { creditos = _creditos; }
         std::mutex* getMtx() const { return mtx; }
         int getTipoCliente() const { return tipo_cliente; }
-        std::queue<PeticionBusqueda>* getQPeticiones() const { return q_peticiones; }
+        std::queue<PeticionBusqueda*>* getQPeticiones() const { return q_peticiones; }
         std::condition_variable* getCvBusqueda() const { return cv_busqueda; }
         std::queue<ResultadoBusqueda> getQResultadoBusqueda() const { return q_resultadoBusqueda; }
         void toString();

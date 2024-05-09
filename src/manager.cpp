@@ -32,7 +32,7 @@
 #define ILIMITADA -1
 
 /* COLAS GLOBALES */
-std::queue<PeticionBusqueda>* q_peticionesBusqueda;
+std::queue<PeticionBusqueda*> q_peticionesBusqueda;
 std::queue<PeticionPago> q_peticionPago;
 
 /* VARIABLES DE CONDICIÓN */

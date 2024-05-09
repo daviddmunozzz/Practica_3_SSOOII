@@ -16,7 +16,7 @@
 #include <mutex>
 #include <condition_variable>
 
-std::queue<PeticionBusqueda>* G_q_peticionesBusqueda;
+std::queue<PeticionBusqueda*>* G_q_peticionesBusqueda;
 std::condition_variable* G_cv_busqueda;
 std::mutex lock;
 
@@ -24,7 +24,7 @@ void Cliente::operator()()
 {
     std::mutex* mtx = getMtx();
     mtx->lock();
-    std::queue<ResultadoBusqueda>* q_resultadoBusqueda = &getQResultadoBusqueda();
+    std::queue<ResultadoBusqueda> q_resultadoBusqueda;
     G_q_peticionesBusqueda = getQPeticiones();
     G_cv_busqueda = getCvBusqueda();
     PeticionBusqueda peticion = PeticionBusqueda(getIdCliente(), getPalabraBusqueda(), getCreditos(),
@@ -36,7 +36,7 @@ void Cliente::operator()()
 void realizarPeticion(PeticionBusqueda p)
 {
     std::lock_guard<std::mutex> lck(lock);
-    G_q_peticionesBusqueda->push(p);
+    G_q_peticionesBusqueda->push(&p);
     G_cv_busqueda->notify_one();
     p.getMtx()->lock();   
 }
