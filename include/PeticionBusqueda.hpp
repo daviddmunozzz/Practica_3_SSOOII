@@ -27,17 +27,19 @@ class PeticionBusqueda
         int creditos;                   //Creditos restantes del cliente
         int tipo_cliente;               // 0 == Gratuito, 1 == Saldo, 2 == Ilimitado.
         std::mutex *mtx;                //Semaforo asociado al cliente
-        std::queue<ResultadoBusqueda> q_resultadoBusqueda;  
+        std::queue<ResultadoBusqueda> *q_resultadoBusqueda;  
 
     public:
-        PeticionBusqueda(int _id_cliente, std::string palabra_busqueda, int _creditos, int _tipo_cliente, std::mutex* _mtx, std::queue<ResultadoBusqueda> _q_resultadoBusqueda) 
+        PeticionBusqueda(int _id_cliente, std::string palabra_busqueda, int _creditos, int _tipo_cliente, std::mutex* _mtx, std::queue<ResultadoBusqueda>* _q_resultadoBusqueda) 
         : id_cliente(_id_cliente), palabra_busqueda(palabra_busqueda), creditos(_creditos), tipo_cliente(_tipo_cliente), mtx(_mtx), q_resultadoBusqueda(_q_resultadoBusqueda) {}
         int getIdCliente() const { return id_cliente; }
         std::string getPalabraBusqueda() const { return palabra_busqueda; }
         int getCreditos() const { return creditos; }
+        void setCreditos(int _creditos) { creditos = _creditos; }
+        int getTipoCliente() const { return tipo_cliente; }
         void restarCreditos() { creditos--; }
         std::mutex* getMtx() const { return mtx; }
-        std::queue<ResultadoBusqueda> getQResultadoBusqueda() const { return q_resultadoBusqueda; }
+        std::queue<ResultadoBusqueda>* getQResultadoBusqueda() const { return q_resultadoBusqueda; }
 };
 
 #endif 

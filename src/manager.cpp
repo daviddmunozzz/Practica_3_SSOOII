@@ -23,7 +23,6 @@
 #include "../include/PeticionBusqueda.hpp"
 #include "../include/Buscador.hpp"
 
-
 #define NUM_CLIENTES 10  // Numero de clientes a crear.
 #define NUM_BUSCADORES 5 // Numero de buscadores simultaneos.
 
@@ -32,7 +31,7 @@
 #define ILIMITADA -1
 
 /* COLAS GLOBALES */
-std::queue<PeticionBusqueda*> q_peticionesBusqueda;
+std::queue<PeticionBusqueda *> q_peticionesBusqueda;
 std::queue<PeticionPago> q_peticionPago;
 
 /* VARIABLES DE CONDICIÓN */
@@ -44,37 +43,39 @@ std::vector<std::string> libreria;
 
 /* DICCIONARIO DE PALABRAS */
 std::string diccionario[] = {
-    "hola","adios", "gato",
-    "casa", "coche", "perro",    
+    "hola", "adios", "gato",
+    "casa", "coche", "perro",
     "mesa", "silla", "libro",
     "telefono", "ordenador", "pelicula",
     "juego", "musica", "playa",
     "montaña", "ciudad", "parque",
-    "comida", "bebida"
-};
+    "comida", "bebida"};
 
 void crearClientes()
 {
     std::vector<std::thread> vClientes;
     std::srand(std::time(nullptr)); // Semilla para seleccionar la palabra aleatoria
 
+
     for (int i = 1; i <= NUM_CLIENTES; i++)
     {
         int valor = std::rand() % 3;
-        std::mutex mtx;
-        if (valor == 0) //Gratis
+        if (valor == 0) // Gratis
         {
-           vClientes.emplace_back(Cliente(i, diccionario[rand() % 20], CREDITOS_GRATIS, valor, &q_peticionesBusqueda, &cv_Busqueda));
-           std::this_thread::sleep_for(std::chrono::seconds(1));
-        }
-        else if (valor == 1) //Saldo
-        {
-            vClientes.emplace_back(Cliente(i, diccionario[rand() % 20], CREDITOS_SALDO, valor, &q_peticionesBusqueda, &cv_Busqueda));
+            vClientes.emplace_back(Cliente(i, diccionario[rand() % 20], CREDITOS_GRATIS, valor, &q_peticionesBusqueda, &cv_Busqueda));
+            std::cout << "CLIENTE [GRATIS]: " << i << " procede a buscar la palabra: " << diccionario[rand() % 20] << std::endl;
             std::this_thread::sleep_for(std::chrono::seconds(1));
         }
-        else //Ilimitada
+        else if (valor == 1) // Saldo
+        {
+            vClientes.emplace_back(Cliente(i, diccionario[rand() % 20], CREDITOS_SALDO, valor, &q_peticionesBusqueda, &cv_Busqueda));
+            std::cout << "CLIENTE [LIMITADA]: " << i << " procede a buscar la palabra: " << diccionario[rand() % 20] << std::endl;
+            std::this_thread::sleep_for(std::chrono::seconds(1));
+        }
+        else // Ilimitada
         {
             vClientes.emplace_back(Cliente(i, diccionario[rand() % 20], ILIMITADA, valor, &q_peticionesBusqueda, &cv_Busqueda));
+            std::cout << "CLIENTE [ILIMITADA]: " << i << " procede a buscar la palabra: " << diccionario[rand() % 20] << std::endl;
             std::this_thread::sleep_for(std::chrono::seconds(1));
         }
     }
@@ -88,20 +89,42 @@ void crearBuscadores()
 
     for (int i = 0; i < NUM_BUSCADORES; i++)
     {
-        vBuscadores.emplace_back(Buscador(i, &q_peticionesBusqueda, &cv_Busqueda, libreria));
+        vBuscadores.emplace_back(Buscador(i, &q_peticionesBusqueda, &cv_Busqueda, libreria, &q_peticionPago, &cv_Pago));
     }
 
     std::for_each(vBuscadores.begin(), vBuscadores.end(), std::mem_fn(&std::thread::join));
-} 
+}
+
+std::mutex mt;
+void sistemaPago()
+{
+    std::cout << "Sistema de pago iniciado..." << std::endl;
+    while (true)
+    {
+        std::unique_lock<std::mutex> unique(mt);
+        cv_Pago.wait(unique, [] { return !q_peticionPago.empty(); });
+
+        PeticionPago p = q_peticionPago.front();
+
+        p.recargaCreditos();
+        std::this_thread::sleep_for(std::chrono::seconds(3));
+        std::cout << "Se han recargado los cŕeditos para el cliente " << p.getIdCliente() << std::endl;
+
+        q_peticionPago.pop();
+        cv_Pago.notify_all();
+    }
+}
 
 int main()
 {
     cargarNombreLibros(&libreria);
     std::thread hiloClientes(crearClientes);
     std::thread hiloBuscadores(crearBuscadores);
+    std::thread hiloSistemaPago(sistemaPago);
 
     hiloClientes.join();
     hiloBuscadores.join();
-    
+    hiloSistemaPago.detach();
+
     return 0;
 }

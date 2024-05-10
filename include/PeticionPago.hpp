@@ -1,14 +1,14 @@
 #include <string>
-
+#include "PeticionBusqueda.hpp"
 
 class PeticionPago
 {
     private:
-        int id_cliente;                 //Identificador único del cliente.
-        std::string palabra_busqueda;   //Palabra que se desea buscar.
+        PeticionBusqueda* peticion;
+        std::atomic<int>* creditos;
 
     public:
-        PeticionPago(int _id_cliente, std::string _palabra_busqueda);
-        void operator ()() const;
-        void depositarPeticion() const;
+        PeticionPago(PeticionBusqueda* _peticion, std::atomic<int>* _creditos): peticion(_peticion), creditos(_creditos) {}
+        int getIdCliente() { return peticion->getIdCliente(); }
+        void recargaCreditos() { creditos->store(10); }
 };

@@ -5,17 +5,29 @@
 #include <filesystem>
 #include <thread>
 #include <vector>
+#include <atomic>
 #include <algorithm>
 
 std::queue<PeticionBusqueda*> *g_colaPeticiones;
 std::condition_variable *g_cvBusqueda;
+
+std::queue<PeticionPago> *g_colaPeticionPago;
+std::condition_variable *g_cvPago;
+
 std::vector<std::string> g_vLibros;
+
+std::atomic<int> va_creditos;
+
 
 void Buscador::operator()()
 {
     g_colaPeticiones = getColaPeticiones();
     g_cvBusqueda = getCvBusqueda();
+
     g_vLibros = getVLibros();
+
+    g_colaPeticionPago = getQpeticionPago();
+    g_cvPago = getCvPago();
 
     recibirPeticion();
 }
@@ -29,9 +41,8 @@ void recibirPeticion()
         std::cout << "Buscador esperando peticion..." << std::endl;
         g_cvBusqueda->wait(ulck, [] { return !g_colaPeticiones->empty(); });
         PeticionBusqueda* p = g_colaPeticiones->front();
+        va_creditos.store(p->getCreditos());
         g_colaPeticiones->pop();
-        std::this_thread::sleep_for(std::chrono::seconds(2));
-        // Mensaje
         std::cout << "Buscador de cliente: " << p->getIdCliente() << " ha solicitado buscar la palabra " << p->getPalabraBusqueda() << std::endl;
 
         iniciarBusqueda(*p);  // Dereferenciamos el puntero para pasarle el objeto a iniciarBusqueda()
@@ -47,8 +58,12 @@ void iniciarBusqueda(PeticionBusqueda p)
     }
 
     std::for_each(v_hilos.begin(), v_hilos.end(), std::mem_fn(&std::thread::join));
+
+    std::cout << "Busqueda finalizada para el cliente: " << p.getIdCliente() << std::endl;
+    p.getMtx()->unlock();
 }
 
+std::mutex mut;
 void buscar(PeticionBusqueda p, std::string libro)
 {
     std::vector<std::string> lectura = LeerFichero(libro);
@@ -62,7 +77,11 @@ void buscar(PeticionBusqueda p, std::string libro)
 
         for (int j = 0; j < lineaSeparada.size(); j++)
         {
-            if (toLower(lineaSeparada[j]) == toLower(palabra))
+            // Solo va a aplicar cuando tipo cliente == 1 (Saldo)
+            std::unique_lock<std::mutex> unique(mut);
+            g_cvPago->wait(unique, [] { return g_colaPeticionPago->empty(); });
+
+            if ((toLower(lineaSeparada[j]) == toLower(palabra)) && comprobarCreditos(p))
             {
                 if (j == 0 && lineaSeparada.size() == 1)
                 {
@@ -85,56 +104,52 @@ void buscar(PeticionBusqueda p, std::string libro)
                     palabra_posterior = lineaSeparada[j + 1];
                 }
 
-                // if (comprobarCreditos(p))
-                // {
-                //     std::cout << "Introduciendo resultado de cliente: " << p.getIdCliente() << std::endl;
-                //     p.getQResultadoBusqueda()->push(ResultadoBusqueda(i, palabra_anterior, palabra_posterior, libro));
-                   
-                // } 
+                //std::lock_guard<std::mutex> lck(mut);
+                ResultadoBusqueda resultado = ResultadoBusqueda(i, palabra_anterior, palabra_posterior, libro);
+                p.getQResultadoBusqueda()->push(resultado);   
 
-                std::cout << "... " << palabra_anterior << " " << palabra << " " << palabra_posterior << " ..." << std::endl;
             }
         }
     }
 }
 
 
-/* bool comprobarCreditos(PeticionBusqueda p)
+bool comprobarCreditos(PeticionBusqueda p)
 {
-    int creditos = p.getCreditos();
-    std::cout << "Cliente: " << p.getIdCliente() << " con creditos: " << creditos << std::endl;
+    // std::mutex m;
+    // std::lock_guard<std::mutex> lck(m);
 
-    if (creditos == -1)
+   // int creditos = p.getCreditos();
+
+    switch (p.getTipoCliente())
     {
-        std::cout << " Cliente premium+ " << std::endl;
+    case 0:
+        if(va_creditos.load() == 0)
+        {
+            std::cout << "No hay creditos disponibles para el cliente: " << p.getIdCliente() << std::endl;       
+            return false;
+        }
+        else{
+            va_creditos.fetch_sub(1);
+            return true;
+        }
+        break;
+    case 1:
+        if(va_creditos.load() == 0)
+        {
+            PeticionPago peticionPago = PeticionPago(&p, &va_creditos);
+            std::cout << "No hay creditos disponibles para el cliente: " << p.getIdCliente() << " procede a pagar..." << std::endl;
+            g_colaPeticionPago->push(peticionPago);
+            g_cvPago->notify_one();
+            return false;
+        }
+        else{
+            va_creditos.fetch_sub(1);
+            return true;
+        }
+        break;
+    default:
         return true;
+        break;
     }
-    else if (creditos == 0)
-    {
-        std::cout << " No hay mas creditos " << std::endl;
-        return false;
-    }
-    else
-    {
-        // Cliente gratuito = 1
-        if (p.tipoCliente() == 1)
-        {
-            std::cout << " Cliente gratuito" << std::endl;
-            
-            c->setCreditos(creditos - 1);
-            return true;
-        }
-        // Cliente saldo = 2
-        else if (p.tipoCliente() == 2)
-        {
-            std::cout << " Cliente saldo" << std::endl;
-            c->setCreditos(c->getCreditos() - 1);
-            return true;
-        }
-    }
-} */
-/*int main()
-{
-
-    return 0;
-}*/
+} 
