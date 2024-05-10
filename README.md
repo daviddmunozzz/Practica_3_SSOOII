@@ -38,3 +38,6 @@ make solution1
 Hay tres ejemplos: solution1, solution2 y solution3
 ## Otros
 Se han incluido las carpetas `include` y `library` con información adicional. `include` contiene el enunciado de la práctica y `library` libros en formato txt para hacer pruebas.
+
+## Enlace a video explicativo
+[](youtube.com)
