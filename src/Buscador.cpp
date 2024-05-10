@@ -43,7 +43,7 @@ void recibirPeticion()
         PeticionBusqueda* p = g_colaPeticiones->front();
         va_creditos.store(p->getCreditos());
         g_colaPeticiones->pop();
-        std::cout << "Buscador de cliente: " << p->getIdCliente() << " ha solicitado buscar la palabra " << p->getPalabraBusqueda() << std::endl;
+        std::cout << "Buscador, atiende la peticion del cliente: " << p->getIdCliente() << " ha solicitado buscar la palabra " << p->getPalabraBusqueda() << std::endl;
 
         iniciarBusqueda(*p);  // Dereferenciamos el puntero para pasarle el objeto a iniciarBusqueda()
     }
@@ -104,7 +104,6 @@ void buscar(PeticionBusqueda p, std::string libro)
                     palabra_posterior = lineaSeparada[j + 1];
                 }
 
-                //std::lock_guard<std::mutex> lck(mut);
                 ResultadoBusqueda resultado = ResultadoBusqueda(i, palabra_anterior, palabra_posterior, libro);
                 p.getQResultadoBusqueda()->push(resultado);   
 
@@ -116,17 +115,11 @@ void buscar(PeticionBusqueda p, std::string libro)
 
 bool comprobarCreditos(PeticionBusqueda p)
 {
-    // std::mutex m;
-    // std::lock_guard<std::mutex> lck(m);
-
-   // int creditos = p.getCreditos();
-
     switch (p.getTipoCliente())
     {
     case 0:
         if(va_creditos.load() == 0)
-        {
-            std::cout << "No hay creditos disponibles para el cliente: " << p.getIdCliente() << std::endl;       
+        {      
             return false;
         }
         else{

@@ -60,22 +60,23 @@ void crearClientes()
     for (int i = 1; i <= NUM_CLIENTES; i++)
     {
         int valor = std::rand() % 3;
+        std::string palabra = diccionario[rand() % 20];
         if (valor == 0) // Gratis
         {
-            vClientes.emplace_back(Cliente(i, diccionario[rand() % 20], CREDITOS_GRATIS, valor, &q_peticionesBusqueda, &cv_Busqueda));
-            std::cout << "CLIENTE [GRATIS]: " << i << " procede a buscar la palabra: " << diccionario[rand() % 20] << std::endl;
+            vClientes.emplace_back(Cliente(i, palabra, CREDITOS_GRATIS, valor, &q_peticionesBusqueda, &cv_Busqueda));
+            std::cout << "CLIENTE [GRATIS]: " << i << " procede a buscar la palabra: " << palabra << std::endl;
             std::this_thread::sleep_for(std::chrono::seconds(1));
         }
         else if (valor == 1) // Saldo
         {
-            vClientes.emplace_back(Cliente(i, diccionario[rand() % 20], CREDITOS_SALDO, valor, &q_peticionesBusqueda, &cv_Busqueda));
-            std::cout << "CLIENTE [LIMITADA]: " << i << " procede a buscar la palabra: " << diccionario[rand() % 20] << std::endl;
+            vClientes.emplace_back(Cliente(i, palabra, CREDITOS_SALDO, valor, &q_peticionesBusqueda, &cv_Busqueda));
+            std::cout << "CLIENTE [LIMITADA]: " << i << " procede a buscar la palabra: " << palabra << std::endl;
             std::this_thread::sleep_for(std::chrono::seconds(1));
         }
         else // Ilimitada
         {
-            vClientes.emplace_back(Cliente(i, diccionario[rand() % 20], ILIMITADA, valor, &q_peticionesBusqueda, &cv_Busqueda));
-            std::cout << "CLIENTE [ILIMITADA]: " << i << " procede a buscar la palabra: " << diccionario[rand() % 20] << std::endl;
+            vClientes.emplace_back(Cliente(i, palabra, ILIMITADA, valor, &q_peticionesBusqueda, &cv_Busqueda));
+            std::cout << "CLIENTE [ILIMITADA]: " << i << " procede a buscar la palabra: " << palabra << std::endl;
             std::this_thread::sleep_for(std::chrono::seconds(1));
         }
     }
@@ -108,7 +109,7 @@ void sistemaPago()
 
         p.recargaCreditos();
         std::this_thread::sleep_for(std::chrono::seconds(3));
-        std::cout << "Se han recargado los cŕeditos para el cliente " << p.getIdCliente() << std::endl;
+        std::cout << "Se han recargado los créditos para el cliente " << p.getIdCliente() << std::endl;
 
         q_peticionPago.pop();
         cv_Pago.notify_all();
@@ -120,6 +121,7 @@ int main()
     cargarNombreLibros(&libreria);
     std::thread hiloClientes(crearClientes);
     std::thread hiloBuscadores(crearBuscadores);
+    std::this_thread::sleep_for(std::chrono::seconds(1));   
     std::thread hiloSistemaPago(sistemaPago);
 
     hiloClientes.join();

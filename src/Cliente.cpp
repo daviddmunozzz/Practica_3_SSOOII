@@ -33,7 +33,8 @@ void Cliente::operator()()
     PeticionBusqueda peticion = PeticionBusqueda(getIdCliente(), getPalabraBusqueda(), getCreditos(),
                                 getTipoCliente(), &mtx, &q_resultadoBusqueda);    
     realizarPeticion(peticion);         //Realizo la peticion y me bloqueo a la espera de resultados
-        setQResultadoBusqueda(peticion.getQResultadoBusqueda());
+    std::cout << "Cliente " << getIdCliente() << " ha completado sus búsquedas. " << std::endl;
+    setQResultadoBusqueda(peticion.getQResultadoBusqueda());
     toString();                         //Almaceno en un fichero la salida.
 }
 
