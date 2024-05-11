@@ -1,6 +1,6 @@
-#include "../include/Buscador.hpp"
-#include "../include/Utilidades.hpp"
-#include "../include/ResultadoBusqueda.hpp"
+#include "Buscador.hpp"
+#include "Utilidades.hpp"
+#include "ResultadoBusqueda.hpp"
 #include <iostream>
 #include <filesystem>
 #include <thread>

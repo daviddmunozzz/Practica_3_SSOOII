@@ -19,11 +19,11 @@
 #include <vector>
 #include <algorithm>
 #include <cstdlib>
-#include "../include/Cliente.hpp"
-#include "../include/PeticionBusqueda.hpp"
-#include "../include/Buscador.hpp"
+#include "Cliente.hpp"
+#include "PeticionBusqueda.hpp"
+#include "Buscador.hpp"
 
-#define NUM_CLIENTES 10  // Numero de clientes a crear.
+#define NUM_CLIENTES 50  // Numero de clientes a crear.
 #define NUM_BUSCADORES 5 // Numero de buscadores simultaneos.
 
 #define CREDITOS_GRATIS 5

@@ -9,8 +9,8 @@
 **********************************************************************
 */
 
-#include "../include/Cliente.hpp"
-#include "../include/PeticionBusqueda.hpp"
+#include "Cliente.hpp"
+#include "PeticionBusqueda.hpp"
 #include <iostream>
 #include <fstream>
 #include <chrono>

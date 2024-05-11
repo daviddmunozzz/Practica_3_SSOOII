@@ -11,8 +11,8 @@
 **********************************************************************
 */
 
-#include "../include/Utilidades.hpp"
-#include "../include/Buscador.hpp"
+#include "Utilidades.hpp"
+#include "Buscador.hpp"
 #include <fstream>
 #include <filesystem>
 

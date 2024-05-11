@@ -23,7 +23,7 @@ $(TARGET): $(OBJS)
     $(CXX) $(CXXFLAGS) -o $@ $(OBJS)
 
 %.o: %.cpp $(HEADERS)
-    $(CXX) $(CXXFLAGS) -c $< -o $@
+    $(CXX) $(CXXFLAGS) -c $< -o $@ -I$(HEADER_DIR)
 
 clean:
     rm -f $(OBJS) $(TARGET)
